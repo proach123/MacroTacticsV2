@@ -16,7 +16,7 @@ const Deck = (props) => {
     const [cardList, setCardList] = useState([{
         cardImg: 'https://b3h2.scene7.com/is/image/BedBathandBeyond/324468869189531p?$imagePLP$&wid=256&hei=256',
         cardText: 'Usually mined by the lower mountain peoples, its uses are inumerable',
-        cardTitle: 'Copper',
+        cardTitle: 'Metal',
         cardType: 'Resource',
         cardCost: '0'
     },

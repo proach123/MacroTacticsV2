@@ -12,8 +12,8 @@ export default function Routes(){
     return(
         <Switch>
 
-            <Route path='/' exact component={Landing}></Route>
-            <Route path='/decks' exact component={Decks}></Route>
+            <Route exact path='/'  component={Landing}></Route>
+            <Route exact path='/decks'  component={Decks}></Route>
             
             <Route path='/decks/:id' children ={<Deck />} />
 

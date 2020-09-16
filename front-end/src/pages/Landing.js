@@ -11,7 +11,7 @@ const Landing = () => {
         <Container fluid>
             <Jumbotron>
                 <h1>Welcome to MacroTactics</h1>
-                <p>The Groundbreaking New Competative Deckbuilder-Hybrid Card Game from Roach Studios</p>
+                <p>The Groundbreaking New Competative Deckbuilder-Hybrid Card Game from Patrick Roach</p>
                 <p>
                     {/* <Image src={townpic}></Image> */}
                 </p>
@@ -29,7 +29,7 @@ const Landing = () => {
                     <Link to='/decks'>decks</Link>
                 </Row>
 
-                <Row>Have any questions for our team? Email us at patrickevanroach@gmail.com</Row>
+                <Row>Have any questions for me? Email me at patrickevanroach@gmail.com</Row>
             </Container>
         </Container>
     )

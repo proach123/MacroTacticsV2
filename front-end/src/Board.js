@@ -45,19 +45,19 @@ export class MacroTacticsBoard extends React.Component {
       textAlign: 'center',
     };
 
-    let tbody = [];
-    for (let i = 0; i < 10; i++) {
-      let cells = [];
-      for (let j = 0; j < 10; j++) {
-        const id = 10 * i + j;
-        cells.push(
-          <td style={cellStyle} key={id} onClick={() => this.onClick(id)}>
-            {this.props.G.cells[id]}
-          </td>
-        );
-      }
-      tbody.push(<tr key={i}>{cells}</tr>);
-    }
+    // let tbody = [];
+    // for (let i = 0; i < 10; i++) {
+    //   let cells = [];
+    //   for (let j = 0; j < 10; j++) {
+    //     const id = 10 * i + j;
+    //     cells.push(
+    //       <td style={cellStyle} key={id} onClick={() => this.onClick(id)}>
+    //         {this.props.G.cells[id]}
+    //       </td>
+    //     );
+    //   }
+    //   tbody.push(<tr key={i}>{cells}</tr>);
+    // }
 
     console.log(this.props.G.player0Graveyard)
 

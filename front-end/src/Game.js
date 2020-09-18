@@ -1,22 +1,26 @@
-import {INVALID_MOVE} from 'boardgame.io/core'
-import decklist from './Decklist'
+import {INVALID_MOVE} from 'boardgame.io/core';
+import decklist from './Decklist';
+import { Stage } from 'boardgame.io/core';
+import { ActivePlayers } from 'boardgame.io/core';
 
 export const MacroTactics = {
+    
     setup: (ctx) => ({ 
-        cells: Array(100).fill(null),
         player0Deck: [{name: 'dmg', desc:'deal 2 dmg to opponent player', func: dealDmg(ctx,2), key: 0,owner: '0' },
         {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '0',}
         ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '0',},
         {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '0',}
         ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '0',},
-         {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '0',}],
+         {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '0',},
+         {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '0',},],
 
          player1Deck: [{name: 'dmg', desc:'deal 2 dmg to opponent player', func: dealDmg(ctx,2), key: 0,owner: '1' },
          {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '1',}
          ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '1',},
          {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '1',}
          ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '1',},
-          {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '1',}],
+          {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '1',},
+          {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '1',},],
 
         unshuffled: [{name: 'dmg', desc:'deal 2 dmg to opponent player'},{name: 'heal' ,desc:'heal 1 point of dmg'},{name:'doubledmg', desc:'deal 4 points of dmg'},
         {name:'megaheal', desc:'heal 5 points of dmg'},{name:'randomdmg', desc:'deal random dmg'}, {name:'randomheal', desc:'heal between 1 and 6 health'}],
@@ -25,6 +29,8 @@ export const MacroTactics = {
         player1Graveyard: [],
 
         intialShuffle: false,
+        playerHasDrawn: false,
+        playerHasPlayed: false,
 
         player0Hand: [], // player hand needs to randomize 2 into it.
 
@@ -43,21 +49,49 @@ export const MacroTactics = {
             moves: {ShuffleDecks,Player0DrawCard, Player1DrawCard},
             endIf: G => (G.intialShuffle),
             start: true,
-            next: 'draw',
+            next: 'normal',
+            onBegin: (G,ctx) => {
+                ShuffleDecks(G,ctx)
+            },
         },
-        draw:{
-            moves: {Player0DrawCard, Player1DrawCard, PlayCard, dealDmg},
+        normal:{
+            moves: {},
+            endIf: G => (G.playerHasDrawn),
+            onEnd: (G, ctx) => { G.playerHasDrawn = false }
         },
-        play: {
-            moves: {PlayCard, dealDmg},
-        },
+        // play: {
+        //     moves: {PlayCard, dealDmg},
+        //     endIf: G => (G.playerHasPlayed),
+        //     onEnd: (G, ctx) => { G.playerHasPlayed = false }
+            
+        // },
     },
+    
 
     turn : {
-        moveLimit: 1
+        //seems like stages are under supported or something need to ctx.events.endstage for it to go to the next one.
+        activePlayers: { all: Stage.NULL }, //active players and stages need to be worked on signifigantly.
+        stages:{
+            draw:{
+                start: true,
+
+                moves:{Player0DrawCard, Player1DrawCard},
+
+                next: 'play',
+            },
+            play:{
+                moves: {PlayCard},
+
+                next:'draw',
+            }
+        },
+        moveLimit: 2
     }, // this will be updated to include 7 phases.. draw main etc.
 
     moves : {
+        changeStage: (G, ctx) => {
+            ctx.events.setStage('draw', { moveLimit: 1 });
+          },
         Player0DrawCard,
         Player1DrawCard,
         dealDmg,
@@ -77,7 +111,18 @@ export const MacroTactics = {
           }
       },
 
-    playerView: (G, ctx, playerId) => G
+    playerView: (G, ctx, playerId) => G,
+
+    // ai: {
+    //     enumerate: (G, ctx) => {
+    //         let moves = []
+    //         for(let i = 0; i < 6; i++){
+    //             if (G.player1Hand[i] === null){
+    //                 moves.push({move: 'Player1DrawCard', args:[i]})
+    //             }
+    //         }
+    //     }
+    // },
 
     //   ai: {
     //     enumerate: (G, ctx) => {
@@ -94,6 +139,7 @@ export const MacroTactics = {
     
 };
 
+
 // function TickLife(G, ctx,damage){
 //     G.lifeTotal[ctx.currentPlayer] = G.lifeTotal[ctx.currentPlayer] - damage;
 // }
@@ -102,7 +148,7 @@ function InvalidMove(G,ctx){
     return(INVALID_MOVE)
 }
 
-function Player0DrawCard(G, ctx, drawCount=1){
+function Player0DrawCard(G, ctx, drawCount=1, firstDraw=1){
     if(G.player0Graveyard[0] == null && G.intialShuffle === true && G.player0Hand.length > 5     ){
         return INVALID_MOVE
     }
@@ -119,9 +165,13 @@ function Player0DrawCard(G, ctx, drawCount=1){
         G.player0Deck.shift()
         i++
     }
+
+    if(firstDraw === 1){
+        ctx.events.endStage()
+    }
 }
 
-function Player1DrawCard(G, ctx, drawCount=1){
+function Player1DrawCard(G, ctx, drawCount=1,firstDraw=1){
     if(G.player1Graveyard[0] == null && G.intialShuffle === true && G.player1Hand.length > 5 ){
         return INVALID_MOVE
     }
@@ -136,6 +186,10 @@ function Player1DrawCard(G, ctx, drawCount=1){
         G.player1Hand.push(G.player1Deck[0])
         G.player1Deck.shift()
         i++
+    }
+
+    if(firstDraw === 1){
+        ctx.events.endStage()
     }
 }
 
@@ -166,6 +220,15 @@ function PlayCard(G, ctx, cardId){
         healDmg(G, player, ctx.random.Die(6)) //random die roll of 6
     }
 
+    if(cardId === 6){
+        if(ctx.currentPlayer == 0){
+            Player0DrawCard(G,ctx,2,2)
+        }
+        if(ctx.currentPlayer == 1){
+            Player1DrawCard(G,ctx,2,2)
+        }
+    }
+
 // need to find a way to put card in graveyard after use
     if(ctx.currentPlayer == 0){
         for (let i = 0; i < G.player0Hand.length; i++) {
@@ -189,7 +252,8 @@ function PlayCard(G, ctx, cardId){
 
     }
     
-
+    G.playerHasPlayed = true
+    ctx.events.endStage()
     
 }
 
@@ -205,6 +269,7 @@ function ShuffleDecks(G, ctx,deck=2){
         Player0DrawCard(G,ctx,3)
         Player1DrawCard(G,ctx,3)
         G.intialShuffle = true
+        ctx.events.setStage('draw')
 
     }
 

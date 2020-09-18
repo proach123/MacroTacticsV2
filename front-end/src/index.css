@@ -11,3 +11,55 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.player0Hand{
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 75vh;
+}
+
+.player0Graveyard{
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 75vh;
+  left:60vw;
+}
+
+.player1Hand{
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 5vh;
+}
+
+.player1Graveyard{
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 5vh;
+  left:60vw;
+}
+
+.player0LifeTotal{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  top: 35vh;
+}
+.player1LifeTotal{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  top: 35vh;
+}
+
+h3{
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top:50vh;
+  left:50vw;
+}

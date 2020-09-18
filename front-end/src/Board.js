@@ -1,8 +1,29 @@
 import React from 'react';
 
 export class MacroTacticsBoard extends React.Component {
-  onClick(id) {
+  whenClicked(id,owner) {
+    console.log(owner)
+    if(owner != this.props.ctx.currentPlayer){
+      this.props.moves.InvalidMove()
+    } else
     this.props.moves.PlayCard(id);
+  }
+
+  handleDraw(player){
+    
+    if(player != this.props.ctx.currentPlayer){
+      this.props.moves.InvalidMove()
+      return
+    }
+    if(player === 0){
+      this.props.moves.Player0DrawCard(1)
+    }
+    if(player === 1){
+      this.props.moves.Player1DrawCard(1)
+    }
+
+    else this.props.moves.InvalidMove()
+
   }
 
   render() {
@@ -10,7 +31,7 @@ export class MacroTacticsBoard extends React.Component {
     if (this.props.ctx.gameover) {
       winner =
         this.props.ctx.gameover.winner !== undefined ? (
-          <div id="winner">Winner: {this.props.ctx.gameover.winner}</div>
+          <div id="winner">Winner: Player {this.props.ctx.gameover.winner}</div>
         ) : (
           <div id="winner">Draw!</div>
         );
@@ -37,37 +58,95 @@ export class MacroTacticsBoard extends React.Component {
       }
       tbody.push(<tr key={i}>{cells}</tr>);
     }
-    console.log(`player0 lifetotal:${this.props.G.lifeTotal[0]}`, `player1 lifetotal:${this.props.G.lifeTotal[1]}`)
-    console.log(`player0 firstCard:${this.props.G.player0Deck[0].name}`, `player1 firstCard:${this.props.G.player1Deck[0].name}`)
 
-
-   
-    
+    console.log(this.props.G.player0Graveyard)
 
     return (
       <div>
         <table id="board">
           {/* <tbody>{tbody}</tbody> */}
         </table>
-        <div style={cellStyle}>{this.props.G.player0Deck[0].name}</div>
-        <div>{this.props.G.lifeTotal[0]}</div>
-        <div>{this.props.G.lifeTotal[1]}</div>
-    <div>{
-        this.props.G.player0Hand.map((elem) => {
+        {/* <div style={cellStyle}>{this.props.G.player0Deck[0].name}</div> */}
+    <div className='player1Hand'>
+      <div>player1 hand</div>
+      <button onClick={()=>this.handleDraw(1)}>draw</button>
+        {
+          this.props.G.player1Hand.map((elem) => {
             return(
-            <div key={elem.key} style={cellStyle} onClick={()=> this.onClick(elem.key)}>
-                <p>
-                    {elem.name}
-                <br></br>
-                    {elem.desc}
-                </p>
-                <button onClick={()=> this.onClick(elem.key)}></button>
-
-            </div>)
-        })
-    }</div>
-        {winner}
+              <div key={elem.key} style={cellStyle} onClick={()=> this.whenClicked(elem.key,elem.owner)}>
+                  <p>
+                      {elem.name}
+                  <br></br>
+                      {elem.desc}
+                  </p>
+              </div>)
+          })
+        }
+    </div>
+    <div className="player1Graveyard">
+        <div>Player1 Graveyard</div>
+        {this.props.G.player1Graveyard.map((elem)=>{
+          return(
+            <div key={elem.key} style={cellStyle} onClick={null}> 
+                  <p>
+                      {elem.name}
+                  <br></br>
+                      {elem.desc}
+                  </p>
+              </div>
+          )
+        })}
       </div>
+
+
+    <div className='player1LifeTotal'>
+      Player1 life:
+      <br></br>
+      <h2>{this.props.G.player1LifeTotal}</h2>
+    </div>
+
+    <div className='player0LifeTotal'>
+      Player0 life:
+      <br></br>
+      <h2>{this.props.G.player0LifeTotal}</h2>
+    </div>
+
+
+        
+    <div className='player0Hand'>
+      <div>player0 hand</div>
+      <button onClick={()=>this.handleDraw(0)}>draw</button>
+        {
+          this.props.G.player0Hand.map((elem) => {
+              return(
+              <div key={elem.key} style={cellStyle} onClick={()=> this.whenClicked(elem.key,elem.owner)}>
+                  <p>
+                      {elem.name}
+                  <br></br>
+                      {elem.desc}
+                  </p>
+              </div>)
+          })
+        }
+      </div>
+      <div className="player0Graveyard">
+        <div>Player0 Graveyard</div>
+        {this.props.G.player0Graveyard.map((elem)=>{
+          return(
+            <div key={elem.key} style={cellStyle} onClick={null}> 
+                  <p>
+                      {elem.name}
+                  <br></br>
+                      {elem.desc}
+                  </p>
+              </div>
+          )
+        })}
+      </div>
+      <h3>
+        {winner}
+      </h3>
+    </div>
     );
   }
 }

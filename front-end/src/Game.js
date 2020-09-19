@@ -70,7 +70,7 @@ export const MacroTactics = {
 
     turn : {
         //seems like stages are under supported or something need to ctx.events.endstage for it to go to the next one.
-        activePlayers: { all: Stage.NULL }, //active players and stages need to be worked on signifigantly.
+        activePlayers: { all: Stage.NULL }, //active players and stages need to be worked on signifigantly. The stage pass only works for player0 right now. No idea why.
         stages:{
             draw:{
                 start: true,

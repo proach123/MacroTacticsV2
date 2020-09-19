@@ -12,7 +12,8 @@ export const MacroTactics = {
         {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '0',}
         ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '0',},
          {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '0',},
-         {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '0',},],
+         {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '0',},
+         {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '0',},],
 
          player1Deck: [{name: 'dmg', desc:'deal 2 dmg to opponent player', func: dealDmg(ctx,2), key: 0,owner: '1' },
          {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '1',}
@@ -20,10 +21,11 @@ export const MacroTactics = {
          {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '1',}
          ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '1',},
           {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '1',},
-          {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '1',},],
+          {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '1',},
+          {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '1',},],
 
-        unshuffled: [{name: 'dmg', desc:'deal 2 dmg to opponent player'},{name: 'heal' ,desc:'heal 1 point of dmg'},{name:'doubledmg', desc:'deal 4 points of dmg'},
-        {name:'megaheal', desc:'heal 5 points of dmg'},{name:'randomdmg', desc:'deal random dmg'}, {name:'randomheal', desc:'heal between 1 and 6 health'}],
+        // unshuffled: [{name: 'dmg', desc:'deal 2 dmg to opponent player'},{name: 'heal' ,desc:'heal 1 point of dmg'},{name:'doubledmg', desc:'deal 4 points of dmg'},
+        // {name:'megaheal', desc:'heal 5 points of dmg'},{name:'randomdmg', desc:'deal random dmg'}, {name:'randomheal', desc:'heal between 1 and 6 health'}], old cards
 
         player0Graveyard: [],
         player1Graveyard: [],
@@ -59,18 +61,13 @@ export const MacroTactics = {
             endIf: G => (G.playerHasDrawn),
             onEnd: (G, ctx) => { G.playerHasDrawn = false }
         },
-        // play: {
-        //     moves: {PlayCard, dealDmg},
-        //     endIf: G => (G.playerHasPlayed),
-        //     onEnd: (G, ctx) => { G.playerHasPlayed = false }
-            
-        // },
+
     },
     
 
     turn : {
         //seems like stages are under supported or something need to ctx.events.endstage for it to go to the next one.
-        activePlayers: { all: Stage.NULL }, //active players and stages need to be worked on signifigantly. The stage pass only works for player0 right now. No idea why.
+        //activePlayers: { all: Stage.NULL }, //active players and stages need to be worked on signifigantly. The stage pass only works for player0 right now. No idea why.
         stages:{
             draw:{
                 start: true,
@@ -83,7 +80,7 @@ export const MacroTactics = {
                 moves: {PlayCard},
 
                 next:'draw',
-            }
+            },
         },
         moveLimit: 2
     }, // this will be updated to include 7 phases.. draw main etc.
@@ -148,27 +145,33 @@ function InvalidMove(G,ctx){
     return(INVALID_MOVE)
 }
 
-function Player0DrawCard(G, ctx, drawCount=1, firstDraw=1){
-    if(G.player0Graveyard[0] == null && G.intialShuffle === true && G.player0Hand.length > 5     ){
+function Player0DrawCard(G, ctx, drawCount = 1, firstDraw = 1) {
+    if (G.player0Graveyard[0] == null && G.intialShuffle === true && G.player0Hand.length > 5) {
         return INVALID_MOVE
     }
-    if(G.player0Deck[0] == null){
-        G.player0Deck = G.player0Graveyard
-        G.player0Graveyard = []   
-        G.player0Deck = ctx.random.Shuffle(G.player0Deck)
+    if (G.player0Deck[0] == null) {
+        G.player0Deck = [...G.player0Graveyard]
+        G.player0Graveyard = []
+        G.player0Deck = [...ctx.random.Shuffle(G.player0Deck)]
         //deck gets replaced by graveyard then graveyard returns to an arra then deck shuffles, then normal draw happens.
         //this works because boardgame.io handles the immutiblity behind the scenes and lets us do things like this to the G obj.
     }
     let i = 0
+
+    // await draw0Helper(G, drawCount)
+
     while(i < drawCount){
-        G.player0Hand.push(G.player0Deck[0])
-        G.player0Deck.shift()
+        if(G.player1Deck[0] != null){
+            G.player0Hand.push(G.player0Deck[0])
+            G.player0Deck.shift()
+        }
         i++
     }
 
-    if(firstDraw === 1){
+    if (firstDraw === 1) {
         ctx.events.endStage()
     }
+    ctx.events.setActivePlayers({ all: 'play', moveLimit: 1 });
 }
 
 function Player1DrawCard(G, ctx, drawCount=1,firstDraw=1){
@@ -176,21 +179,29 @@ function Player1DrawCard(G, ctx, drawCount=1,firstDraw=1){
         return INVALID_MOVE
     }
     if(G.player1Deck[0] == null){
-        G.player1Deck = G.player1Graveyard
+        G.player1Deck = [...G.player1Graveyard]
         G.player1Graveyard = []   
-        G.player1Deck = ctx.random.Shuffle(G.player1Deck)
-        //deck gets replaced by graveyard then graveyard returns to an arra then deck shuffles, then normal draw happens.
+        G.player1Deck = [...ctx.random.Shuffle(G.player1Deck)]
+        //deck gets replaced by graveyard then graveyard returns to an array then deck shuffles, then normal draw happens.
+        //ISSUE right now if the graveyard is full then when you try to draw it shuffles the deck in from the graveyard but it doesn't actually draw.
+        //might have to rework the draw so that if the deck is empty there is a step between where the player chooses to shuffle then draw.
     }
+
+    // await draw1Helper(G,drawCount)
+    
     let i = 0
     while(i < drawCount){
-        G.player1Hand.push(G.player1Deck[0])
-        G.player1Deck.shift()
+        if(G.player1Deck[0] != null){
+            G.player1Hand.push(G.player1Deck[0])
+            G.player1Deck.shift()
+        }
         i++
     }
 
     if(firstDraw === 1){
         ctx.events.endStage()
     }
+    ctx.events.setActivePlayers({ all: 'play', moveLimit: 1 });
 }
 
 function PlayCard(G, ctx, cardId){
@@ -229,6 +240,16 @@ function PlayCard(G, ctx, cardId){
         }
     }
 
+    if(cardId === 7){
+        if(ctx.currentPlayer == 0){
+            discardCards(G,ctx,0,2)
+        }
+        if(ctx.currentPlayer == 1){
+            discardCards(G,ctx,1,2)
+        }
+    }
+        
+
 // need to find a way to put card in graveyard after use
     if(ctx.currentPlayer == 0){
         for (let i = 0; i < G.player0Hand.length; i++) {
@@ -253,7 +274,7 @@ function PlayCard(G, ctx, cardId){
     }
     
     G.playerHasPlayed = true
-    ctx.events.endStage()
+    ctx.events.setActivePlayers({ all: 'draw', moveLimit: 1 });
     
 }
 
@@ -296,4 +317,83 @@ function healDmg(G, player, num){
     if (player == 1){
         G.player1LifeTotal = G.player1LifeTotal + num
     }
+}
+
+async function discardCards(G,ctx,player,num=2){
+    console.log('hit')
+    
+    if(player == 0){
+        while(G.player1Hand.length <= num){
+            num -= 1
+        }        
+        let die = ctx.random.Die(G.player1Hand.length -1,num)
+
+        while(die[0] === die[1]|| die[0] === die[2] || die[1] === die[2]){
+            die = ctx.random.Die(G.player1Hand.length -1, num)
+        }
+        
+        await discard0Helper(G,num,die)
+    }
+    if (player == 1){
+        
+        while(G.player1Hand.length <= num){
+            num -= 1
+        }
+
+        let die = ctx.random.Die(G.player0Hand.length -1,num)
+        console.log(die,'this is the die')
+
+        while(die[0] === die[1]|| die[0] === die[2] || die[1] === die[2]){
+            die = ctx.random.Die(G.player0Hand.length -1, num)
+            console.log(die,'new die value')
+        }
+        
+       await discard1Helper(G,num,die)
+    }
+}
+
+
+function discard1Helper(G,num,die){
+    for(let i = 0; i < num; i++){
+        console.log(i,'this is i for player1')
+        if(G.player0Hand[0] != null){
+            G.player0Graveyard.push(G.player0Hand[die[i]])
+            G.player0Hand.splice(die[i],1)
+        }
+    }
+}
+
+function discard0Helper(G,num,die){
+    for(let i = 0; i < num; i++){
+        console.log(i,'this is i for player0')
+        if(G.player1Hand[0] != null){
+            G.player1Graveyard.push(G.player1Hand[die[i]])
+            G.player1Hand.splice(die[i],1)
+        }
+    }
+}
+
+
+function draw0Helper(G,drawCount){
+    let i = 0
+    while(i < drawCount){
+        if(G.player1Deck[0] != null){
+            G.player0Hand.push(G.player0Deck[0])
+            G.player0Deck.shift()
+        }
+        i++
+    }
+}
+
+function draw1Helper(G,drawCount){
+    let i=0
+
+    while(i < drawCount){
+        if(G.player1Deck[0] != null){
+            G.player1Hand.push(G.player1Deck[0])
+            G.player1Deck.shift()
+        }
+        i++
+    }
+
 }

@@ -31,6 +31,7 @@ export const MacroTactics = {
         player1Graveyard: [],
 
         intialShuffle: false,
+
         playerHasDrawn: false,
         playerHasPlayed: false,
 
@@ -41,6 +42,8 @@ export const MacroTactics = {
         player1Board: [],
 
         player0Board: [],
+
+        firstDraw: false,
 
         player0LifeTotal: 10, // player life total
         player1LifeTotal: 10
@@ -67,7 +70,8 @@ export const MacroTactics = {
 
     turn : {
         //seems like stages are under supported or something need to ctx.events.endstage for it to go to the next one.
-        //activePlayers: { all: Stage.NULL }, //active players and stages need to be worked on signifigantly. The stage pass only works for player0 right now. No idea why.
+        //activePlayers: { all: Stage.NULL }
+
         stages:{
             draw:{
                 start: true,
@@ -81,6 +85,7 @@ export const MacroTactics = {
 
                 next:'draw',
             },
+            
         },
         moveLimit: 2
     }, // this will be updated to include 7 phases.. draw main etc.
@@ -95,7 +100,7 @@ export const MacroTactics = {
         healDmg,
         ShuffleDecks,
         PlayCard,
-        InvalidMove
+        InvalidMove,
     },
     
 
@@ -145,62 +150,55 @@ function InvalidMove(G,ctx){
     return(INVALID_MOVE)
 }
 
-function Player0DrawCard(G, ctx, drawCount = 1, firstDraw = 1) {
-    if (G.player0Graveyard[0] == null && G.intialShuffle === true && G.player0Hand.length > 5) {
-        return INVALID_MOVE
-    }
-    if (G.player0Deck[0] == null) {
-        G.player0Deck = [...G.player0Graveyard]
+function Player0DrawCard(G, ctx, drawCount=1) {
+    let drawIndex = drawCount -1
+
+    if (G.player0Deck[drawIndex +1] == undefined) {
+        console.log('hit graveyard')
+        G.player0Deck = [...G.player0Deck,...G.player0Graveyard]
         G.player0Graveyard = []
         G.player0Deck = [...ctx.random.Shuffle(G.player0Deck)]
         //deck gets replaced by graveyard then graveyard returns to an arra then deck shuffles, then normal draw happens.
         //this works because boardgame.io handles the immutiblity behind the scenes and lets us do things like this to the G obj.
-    }
-    let i = 0
+    } 
+
+        if(G.player0Deck[drawIndex]){
+            for(let i = 0;i < drawCount; i++){
+    
+                G.player0Hand.push(G.player0Deck[0])
+                G.player0Deck.shift()
+            
+            }
+        }
+    
 
     // await draw0Helper(G, drawCount)
 
-    while(i < drawCount){
-        if(G.player1Deck[0] != null){
-            G.player0Hand.push(G.player0Deck[0])
-            G.player0Deck.shift()
-        }
-        i++
-    }
-
-    if (firstDraw === 1) {
-        ctx.events.endStage()
-    }
     ctx.events.setActivePlayers({ all: 'play', moveLimit: 1 });
 }
 
-function Player1DrawCard(G, ctx, drawCount=1,firstDraw=1){
-    if(G.player1Graveyard[0] == null && G.intialShuffle === true && G.player1Hand.length > 5 ){
-        return INVALID_MOVE
-    }
-    if(G.player1Deck[0] == null){
-        G.player1Deck = [...G.player1Graveyard]
-        G.player1Graveyard = []   
+function Player1DrawCard(G, ctx, drawCount=1){
+    let drawIndex = drawCount -1
+
+    if (G.player1Deck[drawIndex +1] == undefined) {
+        console.log('hit graveyard')
+        G.player1Deck = [...G.player1Deck,...G.player1Graveyard]
+        G.player1Graveyard = []
         G.player1Deck = [...ctx.random.Shuffle(G.player1Deck)]
-        //deck gets replaced by graveyard then graveyard returns to an array then deck shuffles, then normal draw happens.
-        //ISSUE right now if the graveyard is full then when you try to draw it shuffles the deck in from the graveyard but it doesn't actually draw.
-        //might have to rework the draw so that if the deck is empty there is a step between where the player chooses to shuffle then draw.
-    }
+        //deck gets replaced by graveyard then graveyard returns to an arra then deck shuffles, then normal draw happens.
+        //this works because boardgame.io handles the immutiblity behind the scenes and lets us do things like this to the G obj.
+    } 
 
-    // await draw1Helper(G,drawCount)
+        if(G.player1Deck[drawIndex]){
+            for(let i = 0;i < drawCount; i++){
     
-    let i = 0
-    while(i < drawCount){
-        if(G.player1Deck[0] != null){
-            G.player1Hand.push(G.player1Deck[0])
-            G.player1Deck.shift()
+                G.player1Hand.push(G.player1Deck[0])
+                G.player1Deck.shift()
+            
+            }
         }
-        i++
-    }
 
-    if(firstDraw === 1){
-        ctx.events.endStage()
-    }
+
     ctx.events.setActivePlayers({ all: 'play', moveLimit: 1 });
 }
 
@@ -233,10 +231,10 @@ function PlayCard(G, ctx, cardId){
 
     if(cardId === 6){
         if(ctx.currentPlayer == 0){
-            Player0DrawCard(G,ctx,2,2)
+            Player0DrawCard(G,ctx,2)
         }
         if(ctx.currentPlayer == 1){
-            Player1DrawCard(G,ctx,2,2)
+            Player1DrawCard(G,ctx,2)
         }
     }
 
@@ -323,39 +321,58 @@ async function discardCards(G,ctx,player,num=2){
     console.log('hit')
     
     if(player == 0){
-        while(G.player1Hand.length <= num){
-            num -= 1
-        }        
-        let die = ctx.random.Die(G.player1Hand.length -1,num)
 
-        while(die[0] === die[1]|| die[0] === die[2] || die[1] === die[2]){
-            die = ctx.random.Die(G.player1Hand.length -1, num)
+        if(G.player1Hand[1] == null){
+            num = 1
+            let die = [1]
+            await discard0Helper(G,num,die)
+        }  
+        console.log(num, 'this is the num in discard')
+        if(G.player1Hand[0]){
+
+                  
+            let die = ctx.random.Die(G.player1Hand.length -1,num)
+
+            while(die[0] === die[1]|| die[0] === die[2] || die[1] === die[2]){
+                die = ctx.random.Die(G.player1Hand.length -1, num)
+            }
+            await discard0Helper(G,num,die)
         }
-        
-        await discard0Helper(G,num,die)
     }
     if (player == 1){
-        
-        while(G.player1Hand.length <= num){
-            num -= 1
-        }
 
-        let die = ctx.random.Die(G.player0Hand.length -1,num)
-        console.log(die,'this is the die')
-
-        while(die[0] === die[1]|| die[0] === die[2] || die[1] === die[2]){
-            die = ctx.random.Die(G.player0Hand.length -1, num)
-            console.log(die,'new die value')
+        if(G.player0Hand[1] == null){
+            num = 1
+            let die = [1]
+            await discard1Helper(G,num,die)
+            
         }
+        console.log(num,'this is the num')
+
+        if(G.player0Hand[0]){
         
-       await discard1Helper(G,num,die)
+            
+
+            let die = ctx.random.Die(G.player0Hand.length -1,num)
+            console.log(die,'this is the die')
+
+            while(die[0] === die[1]|| die[0] === die[2] || die[1] === die[2]){
+                die = ctx.random.Die(G.player0Hand.length -1, num)
+                console.log(die,'new die value')
+            }
+            await discard1Helper(G,num,die)
+        }
     }
 }
 
 
 function discard1Helper(G,num,die){
+    die.sort()
+    console.log(die,'sorted die')
+    die.reverse()
+    console.log(die,'reversed die')
     for(let i = 0; i < num; i++){
-        console.log(i,'this is i for player1')
+        console.log(i,'this is i for player1', die, 'this is the die value')
         if(G.player0Hand[0] != null){
             G.player0Graveyard.push(G.player0Hand[die[i]])
             G.player0Hand.splice(die[i],1)
@@ -364,8 +381,12 @@ function discard1Helper(G,num,die){
 }
 
 function discard0Helper(G,num,die){
+    die.sort()
+    console.log(die,'sorted die')
+    die.reverse()
+    console.log(die,'reversed die')
     for(let i = 0; i < num; i++){
-        console.log(i,'this is i for player0')
+        console.log(i,'this is i for player0',die, 'this is the die value')
         if(G.player1Hand[0] != null){
             G.player1Graveyard.push(G.player1Hand[die[i]])
             G.player1Hand.splice(die[i],1)
@@ -374,26 +395,15 @@ function discard0Helper(G,num,die){
 }
 
 
-function draw0Helper(G,drawCount){
-    let i = 0
-    while(i < drawCount){
-        if(G.player1Deck[0] != null){
-            G.player0Hand.push(G.player0Deck[0])
-            G.player0Deck.shift()
-        }
-        i++
-    }
-}
-
-function draw1Helper(G,drawCount){
-    let i=0
-
-    while(i < drawCount){
-        if(G.player1Deck[0] != null){
-            G.player1Hand.push(G.player1Deck[0])
-            G.player1Deck.shift()
-        }
-        i++
-    }
-
-}
+// function showPlayer1Deck(G,ctx){
+//     if(G.player1DeckToggled === false){
+//         ctx.numMoves = 0;
+//         ctx.events.setStage({ stage: 'toggleDeck' });
+//     }else{
+//         ctx.events.setActivePlayers({
+//             currentPlayer: { stage: 'draw', moveLimit: 2 }
+//         })
+//     }
+//     G.player1DeckToggled = !G.player1DeckToggled
+    
+// }

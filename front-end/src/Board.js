@@ -1,6 +1,15 @@
 import React from 'react';
 
 export class MacroTacticsBoard extends React.Component {
+
+  constructor(props) {
+    super(props)
+    this.state = {player0DeckToggled: false}
+
+    this.showPlayer0Deck = this.showPlayer0Deck.bind(this)
+  }
+
+
   whenClicked(id,owner) {
     console.log(owner)
     if(owner != this.props.ctx.currentPlayer){
@@ -10,8 +19,12 @@ export class MacroTacticsBoard extends React.Component {
   }
 
   handleDraw(player){
+    let G = this.props.G
+    let ctx = this.props.ctx
+    console.log(player, 'this is the player trying to draw')
     
     if(player != this.props.ctx.currentPlayer){
+      console.log('error: wrong player drawstep')
       this.props.moves.InvalidMove()
       return
     }
@@ -22,11 +35,33 @@ export class MacroTacticsBoard extends React.Component {
       this.props.moves.Player1DrawCard(1)
     }
 
-    else this.props.moves.InvalidMove()
+    else{
+      console.log('error: general')
+      this.props.moves.InvalidMove()
+      return
+    }
 
   }
 
+  showPlayer0Deck(){
+    this.setState({player0DeckToggled: !this.state.player0DeckToggled})
+    console.log(this.state.player0DeckToggled)
+  }
+
+
+
   render() {
+
+
+    const cellStyle = {
+      border: '1px solid #555',
+      width: '110px',
+      height: '150px',
+      lineHeight: '50px',
+      textAlign: 'center',
+    };
+
+
     let winner = '';
     if (this.props.ctx.gameover) {
       winner =
@@ -37,13 +72,28 @@ export class MacroTacticsBoard extends React.Component {
         );
     }
 
-    const cellStyle = {
-      border: '1px solid #555',
-      width: '110px',
-      height: '150px',
-      lineHeight: '50px',
-      textAlign: 'center',
-    };
+
+    let deckList = [];
+    if (this.state.player0DeckToggled) {
+      deckList =
+    <div id='decklist'>{this.props.G.player0Deck.map((elm) => {
+
+      return(
+        <div key={elm.key} style={cellStyle} onClick={null}> 
+                  <p>
+                      {elm.name}
+                  <br></br>
+                      {elm.desc}
+                  </p>
+        </div>
+      )
+
+    })}</div>
+        
+
+    }
+
+    
 
     // let tbody = [];
     // for (let i = 0; i < 10; i++) {
@@ -129,6 +179,19 @@ export class MacroTacticsBoard extends React.Component {
           })
         }
       </div>
+
+      <div className='player0Deck'>
+      <div>player0 deck</div>
+      <div style={cellStyle} onClick={()=>{ this.showPlayer0Deck(0)}}>
+        {
+          this.props.G.player0Deck[0].name
+        }
+      </div>
+        
+      </div>
+
+
+
       <div className="player0Graveyard">
         <div>Player0 Graveyard</div>
         {this.props.G.player0Graveyard.map((elem)=>{
@@ -143,6 +206,7 @@ export class MacroTacticsBoard extends React.Component {
           )
         })}
       </div>
+      <h3>{deckList}</h3>
       <h3>
         {winner}
       </h3>

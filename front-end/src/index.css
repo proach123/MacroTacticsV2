@@ -16,6 +16,7 @@ code {
   display: flex;
   justify-content: center;
   position: absolute;
+  align-items: center;
   top: 75vh;
 }
 
@@ -23,6 +24,7 @@ code {
   display: flex;
   justify-content: center;
   position: absolute;
+  align-items: center;
   top: 75vh;
   left:60vw;
 }
@@ -31,6 +33,7 @@ code {
   display: flex;
   justify-content: center;
   position: absolute;
+  align-items: center;
   top: 5vh;
 }
 
@@ -38,6 +41,7 @@ code {
   display: flex;
   justify-content: center;
   position: absolute;
+  align-items: center;
   top: 5vh;
   left:60vw;
 }
@@ -46,13 +50,24 @@ code {
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   top: 35vh;
 }
 .player1LifeTotal{
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   top: 35vh;
+}
+
+.player0Deck{
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  align-items: center;
+  top: 75vh;
+  left:40vw;
 }
 
 h3{

@@ -9,23 +9,40 @@ export const MacroTactics = {
         player0Deck: [{name: 'dmg', desc:'deal 2 dmg to opponent player', func: dealDmg(ctx,2), key: 0,owner: '0' },
         {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '0',}
         ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '0',},
-        {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '0',}
-        ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '0',},
-         {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '0',},
+        {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '0',},
+        // ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '0',},
+        //  {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '0',},
          {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '0',},
-         {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '0',},],
+         {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '0',},
+         {name:'addWheat', desc:'adds wheat to be played',key: 8, owner: '0',},
+        ],
 
          player1Deck: [{name: 'dmg', desc:'deal 2 dmg to opponent player', func: dealDmg(ctx,2), key: 0,owner: '1' },
          {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '1',}
          ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '1',},
-         {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '1',}
-         ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '1',},
-          {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '1',},
+         {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '1',},
+        //  ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '1',},
+        //   {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '1',},
           {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '1',},
-          {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '1',},],
+          {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '1',},
+          {name:'addWheat', desc:'adds wheat to be played',key: 8, owner: '1',},
+        ],
+
+        marketDeck: [
+            {name: 'mend wounds' ,desc:'your heals become 1 point stronger',key: 9, owner: '',},
+            {name: 'combat trick' ,desc:'deal 1 damage then draw a card',key: 10, owner: '',},
+            {name: 'combat trick' ,desc:'deal 1 damage then draw a card',key: 11, owner: '',},
+            {name: 'Rage' ,desc:'Grant yourself Rage. Attacks do double damage',key: 12, owner: '',},
+            {name: 'Power Shift' ,desc:'deal damage to player equal to cards in hand. Both players discard thier hands',key: 13, owner: '',},
+        ],
 
         // unshuffled: [{name: 'dmg', desc:'deal 2 dmg to opponent player'},{name: 'heal' ,desc:'heal 1 point of dmg'},{name:'doubledmg', desc:'deal 4 points of dmg'},
         // {name:'megaheal', desc:'heal 5 points of dmg'},{name:'randomdmg', desc:'deal random dmg'}, {name:'randomheal', desc:'heal between 1 and 6 health'}], old cards
+
+        player0HealStr: 0,
+        player1HealStr: 0,
+        player0AttackMultiplyer: 1,
+        player1AttackMultiplyer:1,
 
         player0Graveyard: [],
         player1Graveyard: [],
@@ -40,8 +57,11 @@ export const MacroTactics = {
         player1Hand: [],
 
         player1Board: [],
-
+        player1Mana: [[0],[0],[0],[0],[0],[0]],
+                    //wheat,meat,wood,stone,metal,gold
         player0Board: [],
+        player0Mana: [[0],[0],[0],[0],[0],[0]],
+                    //wheat,meat,wood,stone,metal,gold
 
         firstDraw: false,
 
@@ -81,7 +101,7 @@ export const MacroTactics = {
                 next: 'play',
             },
             play:{
-                moves: {PlayCard},
+                moves: {PlayCard,BuyCard},
 
                 next:'draw',
             },
@@ -101,6 +121,7 @@ export const MacroTactics = {
         ShuffleDecks,
         PlayCard,
         InvalidMove,
+        BuyCard,
     },
     
 
@@ -202,6 +223,24 @@ function Player1DrawCard(G, ctx, drawCount=1){
     ctx.events.setActivePlayers({ all: 'play', moveLimit: 1 });
 }
 
+function BuyCard(G,ctx,card){
+    const player = ctx.currentPlayer;
+    if(player == 0){
+        G.player0Graveyard = [...G.player0Graveyard,card]
+    }
+    if(player == 1){
+        G.player1Graveyard = [...G.player1Graveyard,card]
+    }
+
+    let marketIndex = G.marketDeck.findIndex((obj) => {
+        return obj.key == card.key
+    })
+
+    G.marketDeck.splice(marketIndex,1)
+
+    ctx.events.setActivePlayers({ all: 'draw', moveLimit: 1 });
+}
+
 function PlayCard(G, ctx, cardId){
     const player = ctx.currentPlayer
     console.log(cardId)
@@ -245,6 +284,23 @@ function PlayCard(G, ctx, cardId){
         if(ctx.currentPlayer == 1){
             discardCards(G,ctx,1,2)
         }
+    }
+
+    if(cardId === 8){
+        if(ctx.currentPlayer == 0){
+            player1AddMana(G,ctx,G.player0Mana)
+        }
+        if(ctx.currentPlayer == 1){
+            player0AddMana(G,ctx,G.player1Mana)
+        }
+    }
+
+    if(cardId === 12){
+            increasePlayerPower(G,ctx)
+    }
+
+    if(cardId === 13){
+        powerShift(G,ctx)
     }
         
 
@@ -297,12 +353,13 @@ function ShuffleDecks(G, ctx,deck=2){
 
 function dealDmg(G, player, num){
 // The comparison for ctx.currentPlayer needs to be double equals NOT triple. Not sure why maybe because its like three levels deep, and is just a reference to the OG.
+
     console.log(`the player who damaged ${player}`)
     if(player == 0){
-        G.player1LifeTotal = G.player1LifeTotal - num
+        G.player1LifeTotal = G.player1LifeTotal - (num * G.player0AttackMultiplyer)
     }
     if (player == 1){
-        G.player0LifeTotal = G.player0LifeTotal - num
+        G.player0LifeTotal = G.player0LifeTotal - (num * G.player1AttackMultiplyer)
     }
 }
 
@@ -326,9 +383,13 @@ async function discardCards(G,ctx,player,num=2){
             num = 1
             let die = [1]
             await discard0Helper(G,num,die)
-        }  
-        console.log(num, 'this is the num in discard')
-        if(G.player1Hand[0]){
+        }
+        else if(G.player1Hand.length ==2){
+            num = 2
+            let die = [1,1]
+            await discard0Helper(G,num,die)
+        }
+        else if(G.player1Hand[0]){
 
                   
             let die = ctx.random.Die(G.player1Hand.length -1,num)
@@ -347,11 +408,13 @@ async function discardCards(G,ctx,player,num=2){
             await discard1Helper(G,num,die)
             
         }
-        console.log(num,'this is the num')
-
-        if(G.player0Hand[0]){
+        else if(G.player0Hand.length == 2){
+            num = 2
+            let die = [1,1]
+            await discard1Helper(G,num,die)
+        }
         
-            
+        else if(G.player0Hand[0]){
 
             let die = ctx.random.Die(G.player0Hand.length -1,num)
             console.log(die,'this is the die')
@@ -393,17 +456,38 @@ function discard0Helper(G,num,die){
         }
     }
 }
+//wheat,meat,wood,stone,metal,gold length = 6
+function player1AddMana(G,ctx,amount=[[1],[1],[1],[1],[1],[1]]){
+    G.player1Mana[0] += amount[0]
+} 
 
+function player0AddMana(G,ctx,amount=[[1],[1],[1],[1],[1],[1]]){
+    G.player0Mana[0] += amount[0]
+}
 
-// function showPlayer1Deck(G,ctx){
-//     if(G.player1DeckToggled === false){
-//         ctx.numMoves = 0;
-//         ctx.events.setStage({ stage: 'toggleDeck' });
-//     }else{
-//         ctx.events.setActivePlayers({
-//             currentPlayer: { stage: 'draw', moveLimit: 2 }
-//         })
-//     }
-//     G.player1DeckToggled = !G.player1DeckToggled
+function increasePlayerPower(G,ctx,amount=1){ // this will double attacks dmg if on default. If you want to go above the default amount then remember to subtract by one for the correct value. ie: you want to triple attack power... set amount to 2.
+    let player = ctx.currentPlayer
+    if(player == 0){
+        G.player0AttackMultiplyer += amount
+    }
+    if(player == 1){
+        G.player1AttackMultiplyer += amount
+    }
+}
+
+function powerShift(G,ctx){
+    let player = ctx.currentPlayer
+    if(player== 0){
+        let l = G.player0Hand.length
+        G.player1LifeTotal = G.player1LifeTotal - (l * G.player0AttackMultiplyer)
+    }
+    if(player == 1){
+        let l = G.player0Hand.length
+        G.player1LifeTotal = G.player1LifeTotal - (l * G.player0AttackMultiplyer)
+    }
     
-// }
+    G.player0Graveyard.push(...G.player0Hand)
+    G.player1Graveyard.push(...G.player1Hand)
+    G.player0Hand = []
+    G.player1Hand = []
+}

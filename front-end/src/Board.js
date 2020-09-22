@@ -9,6 +9,11 @@ export class MacroTacticsBoard extends React.Component {
     this.showPlayer0Deck = this.showPlayer0Deck.bind(this)
   }
 
+  buyCard(card){
+    let owner = this.props.ctx.currentPlayer
+    card.owner = owner
+    this.props.moves.BuyCard(card)
+  }
 
   whenClicked(id,owner) {
     console.log(owner)
@@ -19,8 +24,6 @@ export class MacroTacticsBoard extends React.Component {
   }
 
   handleDraw(player){
-    let G = this.props.G
-    let ctx = this.props.ctx
     console.log(player, 'this is the player trying to draw')
     
     if(player != this.props.ctx.currentPlayer){
@@ -110,6 +113,8 @@ export class MacroTacticsBoard extends React.Component {
     // }
 
     console.log(this.props.G.player0Graveyard)
+
+    console.log(this.props.G.player0AttackMultiplyer,'this is the attack multiplyer')
 
     return (
       <div>
@@ -205,6 +210,43 @@ export class MacroTacticsBoard extends React.Component {
               </div>
           )
         })}
+      </div>
+      <div className='market'>
+        <div>Market</div>
+        {/* {this.props.G.marketDeck.map((elem)=> {
+          return(
+            <div key={elem.key} style={cellStyle} onClick={()=>{this.buyCard(elem)}}>
+              <p>
+                {elem.name}
+                <br></br>
+                {elem.desc}
+              </p>
+            </div>
+          )
+        })} */}
+        
+          <div key={this.props.G.marketDeck[0].key} style={cellStyle} onClick={() => { this.buyCard(this.props.G.marketDeck[0]) }}>
+            <p>
+              {this.props.G.marketDeck[0].name}
+              <br></br>
+              {this.props.G.marketDeck[0].desc}
+            </p>
+          </div>
+          <div key={this.props.G.marketDeck[1].key} style={cellStyle} onClick={() => { this.buyCard(this.props.G.marketDeck[1]) }}>
+            <p>
+              {this.props.G.marketDeck[1].name}
+              <br></br>
+              {this.props.G.marketDeck[1].desc}
+            </p>
+          </div>
+          <div key={this.props.G.marketDeck[2].key} style={cellStyle} onClick={() => { this.buyCard(this.props.G.marketDeck[2]) }}>
+            <p>
+              {this.props.G.marketDeck[2].name}
+              <br></br>
+              {this.props.G.marketDeck[2].desc}
+            </p>
+          </div>
+        
       </div>
       <h3>{deckList}</h3>
       <h3>

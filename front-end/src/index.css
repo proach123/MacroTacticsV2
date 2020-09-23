@@ -12,6 +12,16 @@ code {
     monospace;
 }
 
+.descCard{
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  align-items: center;
+  font-size: 3rem;
+  top: 55vh;
+  left: 30vw;
+}
+
 .player0Hand{
   display: flex;
   justify-content: center;
@@ -34,7 +44,7 @@ code {
   justify-content: center;
   position: absolute;
   align-items: center;
-  top: 5vh;
+  top: 15vh;
 }
 
 .player1Graveyard{
@@ -42,7 +52,7 @@ code {
   justify-content: center;
   position: absolute;
   align-items: center;
-  top: 5vh;
+  top: 15vh;
   left:60vw;
 }
 
@@ -70,6 +80,24 @@ code {
   left:40vw;
 }
 
+.player0Relics{
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  align-items: center;
+  top: 87vh;
+  left:25vw;
+}
+
+.player1Relics{
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  align-items: center;
+  top: 3vh;
+  left:25vw;
+}
+
 h3{
   position: absolute;
   display: flex;
@@ -87,3 +115,4 @@ h3{
   top:40vh;
   left:0vw;
 }
+

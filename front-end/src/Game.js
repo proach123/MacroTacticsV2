@@ -6,43 +6,54 @@ import { ActivePlayers } from 'boardgame.io/core';
 export const MacroTactics = {
     
     setup: (ctx) => ({ 
-        player0Deck: [{name: 'dmg', desc:'deal 2 dmg to opponent player', func: dealDmg(ctx,2), key: 0,owner: '0' },
-        {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '0',}
-        ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '0',},
-        {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '0',},
+        player0Deck: [{name: 'dmg', desc:`deal 2 dmg to opponent player`, func: dealDmg(ctx,2), key: 0,owner: '0',type: 'card', },
+        {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '0',type: 'card',}
+        ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '0',type: 'card',},
+        {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '0',type: 'card',},
         // ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '0',},
         //  {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '0',},
-         {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '0',},
-         {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '0',},
-         {name:'addWheat', desc:'adds wheat to be played',key: 8, owner: '0',},
+         {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '0',type: 'card',},
+         {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '0',type: 'card',},
+         {name:'Found Penny', desc:'adds 1 Gp to your treasury',key: 8, owner: '0',type: 'card',},
+         {name:'add armor', desc:'adds 1 armor until start of next turn',key: 14, owner: '0',type: 'card',},
         ],
 
-         player1Deck: [{name: 'dmg', desc:'deal 2 dmg to opponent player', func: dealDmg(ctx,2), key: 0,owner: '1' },
-         {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '1',}
-         ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '1',},
-         {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '1',},
+         player1Deck: [{name: 'dmg', desc:'deal 2 dmg to opponent player', func: dealDmg(ctx,2), key: 0,owner: '1',type: 'card', },
+         {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '1',type: 'card',}
+         ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '1',type: 'card',},
+         {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '1',type: 'card',},
         //  ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '1',},
         //   {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '1',},
-          {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '1',},
-          {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '1',},
-          {name:'addWheat', desc:'adds wheat to be played',key: 8, owner: '1',},
+          {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '1',type: 'card',},
+          {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '1',type: 'card',},
+          {name:'Found Penny', desc:'adds 1 Gp to your treasury',key: 8, owner: '1',type: 'card',},
+          {name:'add armor', desc:'adds 1 armor until start of next turn',key: 14, owner: '1',type: 'card',},
         ],
 
         marketDeck: [
-            {name: 'mend wounds' ,desc:'your heals become 1 point stronger',key: 9, owner: '',},
-            {name: 'combat trick' ,desc:'deal 1 damage then draw a card',key: 10, owner: '',},
-            {name: 'combat trick' ,desc:'deal 1 damage then draw a card',key: 11, owner: '',},
-            {name: 'Rage' ,desc:'Grant yourself Rage. Attacks do double damage',key: 12, owner: '',},
-            {name: 'Power Shift' ,desc:'deal damage to player equal to cards in hand. Both players discard thier hands',key: 13, owner: '',},
+            {name: 'Mend wounds' ,desc:'your heals become 1 point stronger',key: 9, owner: '',type: 'card',cost: 1,},
+            {name: 'Combat trick' ,desc:'deal 1 damage then draw a card',key: 10, owner: '',type: 'card',cost: 1,},
+            {name: 'Combat trick' ,desc:'deal 1 damage then draw a card',key: 11, owner: '',type: 'card',cost: 1,},
+            {name: 'Rage' ,desc:'Grant yourself Rage. Attacks do double damage',key: 12, owner: '',type: 'card',cost: 3,},
+            {name: 'Power Shift' ,desc:'deal damage to player equal to cards in hand. Both players discard thier hands',key: 13, owner: '',type: 'card',cost: 3,},
+            {name: 'Power Gauntlet',decs:'attacks deal 1 extra dmg',key: 'relic-3',owner:'',type: 'relic',cost:1},
         ],
 
         // unshuffled: [{name: 'dmg', desc:'deal 2 dmg to opponent player'},{name: 'heal' ,desc:'heal 1 point of dmg'},{name:'doubledmg', desc:'deal 4 points of dmg'},
         // {name:'megaheal', desc:'heal 5 points of dmg'},{name:'randomdmg', desc:'deal random dmg'}, {name:'randomheal', desc:'heal between 1 and 6 health'}], old cards
 
-        player0HealStr: 0,
-        player1HealStr: 0,
+        player0HealStr: 1,
+        player1HealStr: 1,
+        player0LifeMax: 10,
+        player1LifeMax: 10,
+        player0Armor: 0,
+        player1Armor: 0,
         player0AttackMultiplyer: 1,
         player1AttackMultiplyer:1,
+        player0AttackAdd: 0,
+        player1AttackAdd: 0,
+        player0Relics: [{name: 'power gauntlet',decs:'attacks deal 1 extra dmg',key: 'relic-1',owner:'0',type: 'relic',},],
+        player1Relics: [{name: 'power shield',decs:'after drawing add one point of armor',key: 'relic-2',owner:'1',type: 'relic',},],
 
         player0Graveyard: [],
         player1Graveyard: [],
@@ -54,13 +65,16 @@ export const MacroTactics = {
 
         player0Hand: [], // player hand needs to randomize 2 into it.
 
+        permArmor1: 0,
+        permArmor0: 0,
+
         player1Hand: [],
 
         player1Board: [],
-        player1Mana: [[0],[0],[0],[0],[0],[0]],
+        player1Gold: 0,
                     //wheat,meat,wood,stone,metal,gold
         player0Board: [],
-        player0Mana: [[0],[0],[0],[0],[0],[0]],
+        player0Gold: 0,
                     //wheat,meat,wood,stone,metal,gold
 
         firstDraw: false,
@@ -71,17 +85,22 @@ export const MacroTactics = {
 
     phases: {
         start: {
-            moves: {ShuffleDecks,Player0DrawCard, Player1DrawCard},
+            moves: {ShuffleDecks,Player0DrawCard, Player1DrawCard,CheckRelics},
             endIf: G => (G.intialShuffle),
             start: true,
             next: 'normal',
             onBegin: (G,ctx) => {
                 ShuffleDecks(G,ctx)
+                CheckRelics(G,ctx,false)
             },
         },
         normal:{
             moves: {},
             endIf: G => (G.playerHasDrawn),
+            onBegin: (G,ctx) => {
+                G.player0Armor = (G.permArmor0)
+                G.player1Armor = (G.permArmor1)
+            },
             onEnd: (G, ctx) => { G.playerHasDrawn = false }
         },
 
@@ -89,26 +108,24 @@ export const MacroTactics = {
     
 
     turn : {
-        //seems like stages are under supported or something need to ctx.events.endstage for it to go to the next one.
-        //activePlayers: { all: Stage.NULL }
 
         stages:{
             draw:{
                 start: true,
 
                 moves:{Player0DrawCard, Player1DrawCard},
-
+                
                 next: 'play',
             },
             play:{
                 moves: {PlayCard,BuyCard},
-
+                
                 next:'draw',
             },
             
         },
         moveLimit: 2
-    }, // this will be updated to include 7 phases.. draw main etc.
+    }, // maybe have a move limit change.
 
     moves : {
         changeStage: (G, ctx) => {
@@ -122,6 +139,7 @@ export const MacroTactics = {
         PlayCard,
         InvalidMove,
         BuyCard,
+        CheckRelics,
     },
     
 
@@ -132,6 +150,14 @@ export const MacroTactics = {
         if (G.player1LifeTotal <= 0) {
             return { winner: 0 };
           }
+        if(G.marketDeck.length <=3){
+
+            if(G.player0LifeTotal > G.player1LifeTotal){
+                return {winner: 0}
+            } else if(G.player1LifeTotal > G.player0LifeTotal){
+                return { winner: 1}
+            } else return {winner: undefined}
+        }
       },
 
     playerView: (G, ctx, playerId) => G,
@@ -146,18 +172,6 @@ export const MacroTactics = {
     //         }
     //     }
     // },
-
-    //   ai: {
-    //     enumerate: (G, ctx) => {
-    //       let moves = [];
-    //       for (let i = 0; i < 9; i++) {
-    //         if (G.cells[i] === null) {
-    //           moves.push({ move: 'clickCell', args: [i] });
-    //         }
-    //       }
-    //       return moves;
-    //     },
-    // }
     
     
 };
@@ -193,7 +207,7 @@ function Player0DrawCard(G, ctx, drawCount=1) {
         }
     
 
-    // await draw0Helper(G, drawCount)
+        G.player0Armor = (G.permArmor0)
 
     ctx.events.setActivePlayers({ all: 'play', moveLimit: 1 });
 }
@@ -219,6 +233,8 @@ function Player1DrawCard(G, ctx, drawCount=1){
             }
         }
 
+    
+    G.player1Armor = (G.permArmor1)
 
     ctx.events.setActivePlayers({ all: 'play', moveLimit: 1 });
 }
@@ -226,10 +242,30 @@ function Player1DrawCard(G, ctx, drawCount=1){
 function BuyCard(G,ctx,card){
     const player = ctx.currentPlayer;
     if(player == 0){
-        G.player0Graveyard = [...G.player0Graveyard,card]
+        if(card.cost <= G.player0Gold){
+            G.player0Gold = (G.player0Gold - card.cost)
+            if(card.type === 'relic'){
+                G.player0Relics = [...G.player0Relics,card]
+                CheckRelics(G,ctx,card)
+
+            }
+            if(card.type === 'card'){
+                G.player0Graveyard = [...G.player0Graveyard,card]
+            }
+        } else return (INVALID_MOVE)
     }
     if(player == 1){
-        G.player1Graveyard = [...G.player1Graveyard,card]
+        if(card.cost <= G.player1Gold){
+            G.player1Gold = (G.player1Gold - card.cost)
+            if(card.type === 'relic'){
+                G.player1Relics = [...G.player1Relics,card]
+                CheckRelics(G,ctx,card)
+            }
+            if(card.type === 'card'){
+                G.player1Graveyard = [...G.player1Graveyard,card]
+            }
+            
+        }
     }
 
     let marketIndex = G.marketDeck.findIndex((obj) => {
@@ -288,11 +324,25 @@ function PlayCard(G, ctx, cardId){
 
     if(cardId === 8){
         if(ctx.currentPlayer == 0){
-            player1AddMana(G,ctx,G.player0Mana)
+            player0AddGold(G,ctx)
         }
         if(ctx.currentPlayer == 1){
-            player0AddMana(G,ctx,G.player1Mana)
+            player1AddGold(G,ctx)
         }
+    }
+    
+    if(cardId === 9){
+        increasePlayerHeals(G,ctx)
+    }
+
+    if(cardId === 10 || cardId === 11){
+        if(ctx.currentPlayer == 0){
+            Player0DrawCard(G,ctx)
+        }
+        if(ctx.currentPlayer == 1){
+            Player1DrawCard(G,ctx)
+        }
+        dealDmg(G,player,1)
     }
 
     if(cardId === 12){
@@ -301,6 +351,10 @@ function PlayCard(G, ctx, cardId){
 
     if(cardId === 13){
         powerShift(G,ctx)
+    }
+
+    if(cardId === 14){
+        addArmor(G,ctx,1)
     }
         
 
@@ -341,11 +395,11 @@ function ShuffleDecks(G, ctx,deck=2){
     if(deck === 2){
         G.player0Deck = ctx.random.Shuffle(G.player0Deck)
         G.player1Deck = ctx.random.Shuffle(G.player1Deck)
+        G.marketDeck = ctx.random.Shuffle(G.marketDeck)
         Player0DrawCard(G,ctx,3)
         Player1DrawCard(G,ctx,3)
         G.intialShuffle = true
         ctx.events.setStage('draw')
-
     }
 
 }
@@ -356,21 +410,30 @@ function dealDmg(G, player, num){
 
     console.log(`the player who damaged ${player}`)
     if(player == 0){
-        G.player1LifeTotal = G.player1LifeTotal - (num * G.player0AttackMultiplyer)
+        G.player1LifeTotal = (G.player1LifeTotal + G.player1Armor) - ((num * G.player0AttackMultiplyer) + G.player0AttackAdd)
     }
     if (player == 1){
-        G.player0LifeTotal = G.player0LifeTotal - (num * G.player1AttackMultiplyer)
+        G.player0LifeTotal = (G.player0LifeTotal + G.player0Armor) - ((num * G.player1AttackMultiplyer) + G.player1AttackAdd)
     }
 }
 
 function healDmg(G, player, num){
 // The comparison for ctx.currentPlayer needs to be double equals NOT triple. Not sure why maybe because its like three levels deep, and is just a reference to the OG.
     
+
     if(player == 0){
-        G.player0LifeTotal = G.player0LifeTotal + num
+        if(G.player0LifeMax >= (G.player0LifeTotal+(num * G.player0HealStr))){
+            G.player0LifeTotal = G.player0LifeTotal + (num * G.player0HealStr)
+        } else{
+            G.player0LifeTotal = G.player0LifeMax
+        }
     }
     if (player == 1){
-        G.player1LifeTotal = G.player1LifeTotal + num
+        if(G.player1LifeMax >= (G.player1LifeTotal+(num * G.player1HealStr))){
+            G.player1LifeTotal = G.player1LifeTotal + (num * G.player1HealStr)
+        } else{
+            G.player1LifeTotal = G.player1LifeMax
+        }
     }
 }
 
@@ -457,12 +520,22 @@ function discard0Helper(G,num,die){
     }
 }
 //wheat,meat,wood,stone,metal,gold length = 6
-function player1AddMana(G,ctx,amount=[[1],[1],[1],[1],[1],[1]]){
-    G.player1Mana[0] += amount[0]
+function player1AddGold(G,ctx,amount=1){
+    G.player1Gold += amount
 } 
 
-function player0AddMana(G,ctx,amount=[[1],[1],[1],[1],[1],[1]]){
-    G.player0Mana[0] += amount[0]
+function player0AddGold(G,ctx,amount=1){
+    G.player0Gold += amount
+}
+
+function addArmor(G,ctx,amount=1){
+    let player = ctx.currentPlayer
+    if(player == 0){
+        G.player0Armor += amount
+    }
+    if(player == 1){
+        G.player1Armor += amount
+    }
 }
 
 function increasePlayerPower(G,ctx,amount=1){ // this will double attacks dmg if on default. If you want to go above the default amount then remember to subtract by one for the correct value. ie: you want to triple attack power... set amount to 2.
@@ -474,6 +547,29 @@ function increasePlayerPower(G,ctx,amount=1){ // this will double attacks dmg if
         G.player1AttackMultiplyer += amount
     }
 }
+
+function increasePlayerAttackAdd(G,ctx,amount=1){ // this will double attacks dmg if on default. If you want to go above the default amount then remember to subtract by one for the correct value. ie: you want to triple attack power... set amount to 2.
+    let player = ctx.currentPlayer
+    if(player == 0){
+        G.player0AttackAdd += amount
+    }
+    if(player == 1){
+        G.player1AttackAdd += amount
+    }
+}
+
+
+function increasePlayerHeals(G,ctx,amount=1){ //same deal as the dmg func.
+    let player = ctx.currentPlayer
+    if(player == 0){
+        G.player0HealStr += amount
+    }
+    if(player == 1){
+        G.player1HealStr += amount
+    }
+}
+
+
 
 function powerShift(G,ctx){
     let player = ctx.currentPlayer
@@ -490,4 +586,55 @@ function powerShift(G,ctx){
     G.player1Graveyard.push(...G.player1Hand)
     G.player0Hand = []
     G.player1Hand = []
+}
+
+// {name: 'power gauntlet',decs:'attacks deal 1 extra dmg',key: 'relic-1',owner:'0'}
+// {name: 'power shield',decs:'start each round with one point of armor',key: 'relic-2',owner:'1'}
+
+function CheckRelics(G,ctx,card=undefined){
+    
+    if(G.player0Relics.length > 0){
+        if(card){
+            for(let i=0; i < G.player0Relics.length; i++){
+                if(card.key === 'relic-1'|| card.key === 'relic-3'){
+                    G.player0AttackAdd += (1)
+                    i = G.player0Relics.length
+                }
+                if(card.key === 'relic-2'){
+                    G.permArmor0 += (1)
+                    i = G.player0Relics.length
+                }
+            }
+        }else
+        for(let i =0; i < G.player0Relics.length; i++){
+            if(G.player0Relics[i].key === 'relic-1'|| card.key === 'relic-3'){
+                G.player0AttackAdd += (1)
+            }
+            if(G.player0Relics[i].key === 'relic-2'){
+                G.permArmor0 += (1)
+            }
+        }
+    }
+    if(G.player1Relics.length > 0){
+        if(card){
+            for(let i=0; i < G.player1Relics.length; i++){
+                if(card.key === 'relic-1'|| card.key === 'relic-3'){
+                    G.player1AttackAdd += (1)
+                    i = G.player1Relics.length
+                }
+                if(card.key === 'relic-2' ){
+                    G.permArmor1 += (1)
+                    i = G.player1Relics.length
+                }
+            }
+        }else
+        for(let i =0; i < G.player1Relics.length; i++){
+            if(G.player1Relics[i].key === 'relic-1'|| card.key === 'relic-3'){
+                G.player1AttackAdd += (1)
+            }
+            if(G.player1Relics[i].key === 'relic-2'){
+                G.permArmor1 += (1)
+            }
+        }
+    }
 }

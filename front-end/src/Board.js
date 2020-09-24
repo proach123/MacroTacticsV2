@@ -27,6 +27,8 @@ export class MacroTacticsBoard extends React.Component {
     } else
       this.props.moves.PlayCard(id);
   }
+//ff
+
 
   handleDraw(player) {
     console.log(player, 'this is the player trying to draw')

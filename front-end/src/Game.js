@@ -10,41 +10,38 @@ export const MacroTactics = {
         {name: 'Heal' ,desc:'Heal 1 point of dmg',key: 1, owner: '0',type: 'card',}
         ,{name:'Slice', desc:'Deal 2 points of dmg',key: 2, owner: '0',type: 'card',},
         {name:'Raise Gauntlet', desc:'Add one point of armor until start of next turn',key: 3, owner: '0',type: 'card',},
-        // ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '0',},
-        //  {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '0',},
+
          {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '0',type: 'card',},
-         {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '0',type: 'card',},
          {name:'Found Penny', desc:'adds 1 Gp to your treasury',key: 8, owner: '0',type: 'card',},
-         {name:'add armor', desc:'adds 1 armor until start of next turn',key: 14, owner: '0',type: 'card',},
+         {name:'Raise Gauntlet', desc:'adds 1 armor until start of next turn',key: 14, owner: '0',type: 'card',},
         ],
 
          player1Deck: [{name: 'Slice', desc:`Deal 2 dmg`, func: dealDmg(ctx,2), key: 0,owner: '1',type: 'card', },
          {name: 'Heal' ,desc:'Heal 1 point of dmg',key: 1, owner: '1',type: 'card',}
          ,{name:'Slice', desc:'Deal 2 points of dmg',key: 2, owner: '1',type: 'card',},
          {name:'Raise Gauntlet', desc:'Add one point of armor until start of next turn',key: 3, owner: '1',type: 'card',},
-         // ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '1',},
-         //  {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '1',},
+
           {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '1',type: 'card',},
-          {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '1',type: 'card',},
           {name:'Found Penny', desc:'adds 1 Gp to your treasury',key: 8, owner: '1',type: 'card',},
-          {name:'add armor', desc:'adds 1 armor until start of next turn',key: 14, owner: '1',type: 'card',},
+          {name:'Raise Gauntlet', desc:'adds 1 armor until start of next turn',key: 14, owner: '1',type: 'card',},
          ],
 
         marketDeck: [
+            {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '',type: 'card',},
             {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '',type:'card',cost:1},
-            {name:'randomdmg', desc:'deal random dmg', key: 4, owner: '',type:'card',cost:1},
-            {name: 'Mend wounds' ,desc:'your heals become 1 point stronger',key: 9, owner: '',type: 'card',cost: 1,},
+            {name:'Wish Hammer', desc:'deal random damage between 1 and 6', key: 4, owner: '',type:'card',cost:1},
+            {name: 'Mend Wounds' ,desc:'your heals become 1 point stronger',key: 9, owner: '',type: 'card',cost: 1,},
             {name: 'Combat trick' ,desc:'deal 1 damage then draw a card',key: 10, owner: '',type: 'card',cost: 1,},
             {name: 'Combat trick' ,desc:'deal 1 damage then draw a card',key: 11, owner: '',type: 'card',cost: 1,},
             {name: 'Rage' ,desc:'Grant yourself Rage. Attacks do double damage',key: 12, owner: '',type: 'card',cost: 3,},
             {name: 'Power Shift' ,desc:'deal damage to player equal to cards in hand. Both players discard thier hands',key: 13, owner: '',type: 'card',cost: 3,},
-            {name: 'Power Gauntlet',decs:'attacks deal 1 extra dmg',key: 'relic-3',owner:'',type: 'relic',cost:1},
-            {name: 'Power shield',decs:'Add one point of perm armor',key: 'relic-2',owner:'',type: 'relic',cost:1,},
-            {name: 'Power Gauntlet',decs:'attacks deal 1 extra dmg',key: 'relic-1',owner:'0',type: 'relic',cost:1},
+            {name: 'Power Gauntlet',desc:'attacks deal 1 extra dmg',key: 'relic-3',owner:'',type: 'relic',cost:1},
+            {name: 'Power shield',desc:'Add one point of perm armor',key: 'relic-2',owner:'',type: 'relic',cost:1,},
+            {name: 'Power Gauntlet',desc:'attacks deal 1 extra dmg',key: 'relic-1',owner:'0',type: 'relic',cost:1},
         ],
-
-        // unshuffled: [{name: 'dmg', desc:'deal 2 dmg to opponent player'},{name: 'heal' ,desc:'heal 1 point of dmg'},{name:'doubledmg', desc:'deal 4 points of dmg'},
-        // {name:'megaheal', desc:'heal 5 points of dmg'},{name:'randomdmg', desc:'deal random dmg'}, {name:'randomheal', desc:'heal between 1 and 6 health'}], old cards
+   
+//lastest card key#: 14
+//latest relic #: relic-3
 
         player0HealStr: 1,
         player1HealStr: 1,
@@ -101,7 +98,7 @@ export const MacroTactics = {
             },
         },
         normal:{
-            moves: {},
+            moves: {EndTurn},
             endIf: G => (G.playerHasDrawn),
             onBegin: (G,ctx) => {
                 G.player0Armor = (G.permArmor0)
@@ -119,17 +116,17 @@ export const MacroTactics = {
             draw:{
                 start: true,
 
-                moves:{Player0DrawCard, Player1DrawCard},
+                moves:{Player0DrawCard, Player1DrawCard,EndTurn},
                 
                 next: 'play',
             },
             play:{
-                moves: {PlayCard,BuyCard},
+                moves: {PlayCard,BuyCard,EndTurn},
                 
                 next:'play2',
             },
             play2:{
-                moves:{PlayCard,BuyCard},
+                moves:{PlayCard,BuyCard,EndTurn},
                 next:'draw',
             },
             
@@ -150,6 +147,7 @@ export const MacroTactics = {
         InvalidMove,
         BuyCard,
         CheckRelics,
+        EndTurn,
     },
     
 
@@ -472,12 +470,12 @@ async function discardCards(G,ctx,player,num=2){
 
         if(G.player1Hand[1] == null){
             num = 1
-            let die = [1]
+            let die = [0]
             await discard0Helper(G,num,die)
         }
         else if(G.player1Hand.length ==2){
             num = 2
-            let die = [1,1]
+            let die = [0,1]
             await discard0Helper(G,num,die)
         }
         else if(G.player1Hand[0]){
@@ -495,13 +493,13 @@ async function discardCards(G,ctx,player,num=2){
 
         if(G.player0Hand[1] == null){
             num = 1
-            let die = [1]
+            let die = [0]
             await discard1Helper(G,num,die)
             
         }
         else if(G.player0Hand.length == 2){
             num = 2
-            let die = [1,1]
+            let die = [0,1]
             await discard1Helper(G,num,die)
         }
         
@@ -543,6 +541,7 @@ function discard0Helper(G,num,die){
         console.log(i,'this is i for player0',die, 'this is the die value')
         if(G.player1Hand[0] != null){
             G.player1Graveyard.push(G.player1Hand[die[i]])
+
             G.player1Hand.splice(die[i],1)
         }
     }
@@ -665,4 +664,24 @@ function CheckRelics(G,ctx,card=undefined){
             }
         }
     }
+}
+
+function EndTurn(G,ctx){
+    // console.log(ctx.stage)
+
+    console.log(ctx.numMoves)
+
+    if(ctx.numMoves == 0){
+        ctx.events.setPhase('normal');
+    } else if(ctx.numMoves == 1){
+        ctx.events.setPhase('normal')
+        // ctx.events.setPhase('normal')
+    } else if(ctx.numMoves == 2){
+        ctx.events.setPhase('normal')
+        ctx.events.setPhase('normal')
+    }
+    G.firstPlay = 0
+    ctx.events.setActivePlayers({all: 'draw'})
+    
+
 }

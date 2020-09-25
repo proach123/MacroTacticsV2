@@ -116,3 +116,11 @@ h3{
   left:0vw;
 }
 
+.end-turn{
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top:40vh;
+  left:24vw;
+}

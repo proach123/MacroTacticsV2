@@ -28,6 +28,10 @@ export class MacroTacticsBoard extends React.Component {
       this.props.moves.PlayCard(id);
   }
 
+  endTurn(id){
+    this.props.moves.EndTurn()
+  }
+
 
 
   handleDraw(player) {
@@ -163,6 +167,8 @@ export class MacroTacticsBoard extends React.Component {
           })}
         </div>
 
+        
+
         <div className='player1LifeTotal'>
           Player1 Gold Total:
       <br></br>
@@ -179,6 +185,12 @@ export class MacroTacticsBoard extends React.Component {
           Player1 life/life total/armor:
       <br></br>
           <h2>{this.props.G.player1LifeTotal}/{this.props.G.player1LifeMax}/{this.props.G.player1Armor}</h2>
+        </div>
+
+        <div className='player1LifeTotal'>
+          Moves Left:
+      <br></br>
+          <h2>{this.props.ctx.numMoves}/3</h2>
         </div>
 
         <div className='player0LifeTotal'>
@@ -216,6 +228,12 @@ export class MacroTacticsBoard extends React.Component {
             })
           }
         </div>
+        
+        <div className='end-turn'>
+          <button onClick={() => { this.endTurn() }}>End Turn</button>
+
+        </div>
+        
 
         <div className='player0Deck'>
           <div>player0 deck</div>
@@ -252,7 +270,7 @@ export class MacroTacticsBoard extends React.Component {
                 <p>
                   {elem.name}
                   <br></br>
-                  {elem.decs}
+                  {elem.desc}
                 </p>
               </div>
             )
@@ -266,7 +284,7 @@ export class MacroTacticsBoard extends React.Component {
                 <p>
                   {elem.name}
                   <br></br>
-                  {elem.decs}
+                  {elem.desc}
                 </p>
               </div>
             )

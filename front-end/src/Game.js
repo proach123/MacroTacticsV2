@@ -6,10 +6,10 @@ import { ActivePlayers } from 'boardgame.io/core';
 export const MacroTactics = {
     
     setup: (ctx) => ({ 
-        player0Deck: [{name: 'dmg', desc:`deal 2 dmg to opponent player`, func: dealDmg(ctx,2), key: 0,owner: '0',type: 'card', },
-        {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '0',type: 'card',}
-        ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '0',type: 'card',},
-        {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '0',type: 'card',},
+        player0Deck: [{name: 'Slice', desc:`Deal 2 dmg`, func: dealDmg(ctx,2), key: 0,owner: '0',type: 'card', },
+        {name: 'Heal' ,desc:'Heal 1 point of dmg',key: 1, owner: '0',type: 'card',}
+        ,{name:'Slice', desc:'Deal 2 points of dmg',key: 2, owner: '0',type: 'card',},
+        {name:'Raise Gauntlet', desc:'Add one point of armor until start of next turn',key: 3, owner: '0',type: 'card',},
         // ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '0',},
         //  {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '0',},
          {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '0',type: 'card',},
@@ -18,25 +18,29 @@ export const MacroTactics = {
          {name:'add armor', desc:'adds 1 armor until start of next turn',key: 14, owner: '0',type: 'card',},
         ],
 
-         player1Deck: [{name: 'dmg', desc:'deal 2 dmg to opponent player', func: dealDmg(ctx,2), key: 0,owner: '1',type: 'card', },
-         {name: 'heal' ,desc:'heal 1 point of dmg',key: 1, owner: '1',type: 'card',}
-         ,{name:'doubledmg', desc:'deal 4 points of dmg',key: 2, owner: '1',type: 'card',},
-         {name:'megaheal', desc:'heal 5 points of dmg',key: 3, owner: '1',type: 'card',},
-        //  ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '1',},
-        //   {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '1',},
+         player1Deck: [{name: 'Slice', desc:`Deal 2 dmg`, func: dealDmg(ctx,2), key: 0,owner: '1',type: 'card', },
+         {name: 'Heal' ,desc:'Heal 1 point of dmg',key: 1, owner: '1',type: 'card',}
+         ,{name:'Slice', desc:'Deal 2 points of dmg',key: 2, owner: '1',type: 'card',},
+         {name:'Raise Gauntlet', desc:'Add one point of armor until start of next turn',key: 3, owner: '1',type: 'card',},
+         // ,{name:'randomdmg', desc:'deal random dmg', key: 4, owner: '1',},
+         //  {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '1',},
           {name:'drawTwo', desc:'Draw two cards',key: 6, owner: '1',type: 'card',},
           {name:'discardTwo', desc:'Opponent discard two cards',key: 7, owner: '1',type: 'card',},
           {name:'Found Penny', desc:'adds 1 Gp to your treasury',key: 8, owner: '1',type: 'card',},
           {name:'add armor', desc:'adds 1 armor until start of next turn',key: 14, owner: '1',type: 'card',},
-        ],
+         ],
 
         marketDeck: [
+            {name:'randomheal', desc:'heal between 1 and 6 health',key: 5, owner: '',type:'card',cost:1},
+            {name:'randomdmg', desc:'deal random dmg', key: 4, owner: '',type:'card',cost:1},
             {name: 'Mend wounds' ,desc:'your heals become 1 point stronger',key: 9, owner: '',type: 'card',cost: 1,},
             {name: 'Combat trick' ,desc:'deal 1 damage then draw a card',key: 10, owner: '',type: 'card',cost: 1,},
             {name: 'Combat trick' ,desc:'deal 1 damage then draw a card',key: 11, owner: '',type: 'card',cost: 1,},
             {name: 'Rage' ,desc:'Grant yourself Rage. Attacks do double damage',key: 12, owner: '',type: 'card',cost: 3,},
             {name: 'Power Shift' ,desc:'deal damage to player equal to cards in hand. Both players discard thier hands',key: 13, owner: '',type: 'card',cost: 3,},
             {name: 'Power Gauntlet',decs:'attacks deal 1 extra dmg',key: 'relic-3',owner:'',type: 'relic',cost:1},
+            {name: 'Power shield',decs:'Add one point of perm armor',key: 'relic-2',owner:'',type: 'relic',cost:1,},
+            {name: 'Power Gauntlet',decs:'attacks deal 1 extra dmg',key: 'relic-1',owner:'0',type: 'relic',cost:1},
         ],
 
         // unshuffled: [{name: 'dmg', desc:'deal 2 dmg to opponent player'},{name: 'heal' ,desc:'heal 1 point of dmg'},{name:'doubledmg', desc:'deal 4 points of dmg'},
@@ -52,8 +56,8 @@ export const MacroTactics = {
         player1AttackMultiplyer:1,
         player0AttackAdd: 0,
         player1AttackAdd: 0,
-        player0Relics: [{name: 'power gauntlet',decs:'attacks deal 1 extra dmg',key: 'relic-1',owner:'0',type: 'relic',},],
-        player1Relics: [{name: 'power shield',decs:'after drawing add one point of armor',key: 'relic-2',owner:'1',type: 'relic',},],
+        player0Relics: [],
+        player1Relics: [],
 
         player0Graveyard: [],
         player1Graveyard: [],
@@ -80,7 +84,9 @@ export const MacroTactics = {
         firstDraw: false,
 
         player0LifeTotal: 10, // player life total
-        player1LifeTotal: 10
+        player1LifeTotal: 10,
+
+        firstPlay:0,
     }),
 
     phases: {
@@ -120,17 +126,21 @@ export const MacroTactics = {
             play:{
                 moves: {PlayCard,BuyCard},
                 
+                next:'play2',
+            },
+            play2:{
+                moves:{PlayCard,BuyCard},
                 next:'draw',
             },
             
         },
-        moveLimit: 2
+        moveLimit: 3
     }, // maybe have a move limit change.
 
     moves : {
-        changeStage: (G, ctx) => {
-            ctx.events.setStage('draw', { moveLimit: 1 });
-          },
+        // changeStage: (G, ctx) => {
+        //     ctx.events.setStage('draw', { moveLimit: 1 });
+        //   },
         Player0DrawCard,
         Player1DrawCard,
         dealDmg,
@@ -209,7 +219,7 @@ function Player0DrawCard(G, ctx, drawCount=1) {
 
         G.player0Armor = (G.permArmor0)
 
-    ctx.events.setActivePlayers({ all: 'play', moveLimit: 1 });
+    ctx.events.setActivePlayers({ all: 'play' });
 }
 
 function Player1DrawCard(G, ctx, drawCount=1){
@@ -274,7 +284,15 @@ function BuyCard(G,ctx,card){
 
     G.marketDeck.splice(marketIndex,1)
 
-    ctx.events.setActivePlayers({ all: 'draw', moveLimit: 1 });
+    if(G.firstPlay === 0){
+        G.firstPlay = 1;
+        ctx.events.setActivePlayers({ all: 'play2' });
+    }else
+
+    if(G.firstPlay === 1){
+        G.firstPlay = 0
+        ctx.events.setActivePlayers({all: 'draw'})
+    }
 }
 
 function PlayCard(G, ctx, cardId){
@@ -289,11 +307,11 @@ function PlayCard(G, ctx, cardId){
     }
 
     if(cardId === 2){
-        dealDmg(G,player,4)
+        dealDmg(G,player,2)
     }
 
     if(cardId === 3){
-        healDmg(G,player,5)
+        addArmor(G,ctx,1)
     }
 
     if(cardId === 4){
@@ -382,7 +400,17 @@ function PlayCard(G, ctx, cardId){
     }
     
     G.playerHasPlayed = true
-    ctx.events.setActivePlayers({ all: 'draw', moveLimit: 1 });
+
+    if(G.firstPlay === 0){
+        G.firstPlay = 1;
+        ctx.events.setActivePlayers({ all: 'play2' });
+    }else
+
+    if(G.firstPlay === 1){
+        G.firstPlay = 0
+        ctx.events.setActivePlayers({all: 'draw'})
+    }
+
     
 }
 
